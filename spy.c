@@ -62,10 +62,12 @@ void show_mem(struct Memory* ShmPTR) {
 
 int main(int argc , char *argv[]){
 
+	//THIS CODE IS REUSABLE	
 	int ShmID;
 	struct Memory *ShmPTR;
 	
 	key_t ShmKEY = ftok(KEY, VAL);
+
 	ShmID = shmget(ShmKEY, sizeof(struct Memory), 0666);
 	if (ShmID < 0) {
 		printf("*** shmget error (client) ***\n");
@@ -73,7 +75,11 @@ int main(int argc , char *argv[]){
 	}
 
 	ShmPTR = (struct Memory *) shmat(ShmID, NULL, 0);
-	printf("Spy: Shared memory attached\n");
+	printf("Spy: shared memory attached.\n");
+	//THIS CODE IS REUSABLE
+
+
+
 
 	printf("---------------MEMORY DUMP---------------\n");
 	show_mem(ShmPTR);	
@@ -84,12 +90,11 @@ int main(int argc , char *argv[]){
 	printf("-------------WRITERS STATUS--------------\n\n");
 
 
-
+	//THIS CODE IS REUSABLE
 	shmdt((void *) ShmPTR);	
-    printf("Writers: memory deattached\n");
-    printf("Closing writers\n");
+    printf("Spy: shared memory deattached.\n");
 	return 0;
- 
+ 	//THIS CODE IS REUSABLE
  
 
 	return 0;
