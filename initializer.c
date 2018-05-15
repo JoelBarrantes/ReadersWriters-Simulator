@@ -17,36 +17,18 @@
 #include <sys/wait.h>
 #include "memory.h"
 
-
 void display_help(){
-	printf("# OF LINES MISSING\n");
+
+	printf("RUN THE PROGRAM WITH THE FOLLOWING FORMAT:\n");
+	printf("initializer <memory lines>. The max number for \"memory lines\" is 1024\n");
+	printf("Example: initializer 256\n");
 	
 }
 
-void show_mem(struct Memory* ShmPTR, sem_t *sem) {
-	int i = 0;	
-	sem_wait(sem);
-	int lim = ShmPTR -> limit;	
-	for(i = 0; i < lim; i++){
-		time_t t = ShmPTR -> date_time[i];
-
-		char buff[20];
-		strftime(buff, 20, "%Y-%m-%d %H:%M:%S", localtime(&t));
-		
-		printf("%d | ", ShmPTR -> pid[i]);
-		printf("%s\n",buff);
-		
-	}
-	sem_post(sem);
-}
-
 int main(int argc , char *argv[]) {
-	int sema;
+	
 	sem_t *sem = sem_open(SEM_NAME, O_CREAT , 0666, 1);
-	sem_getvalue(sem, &sema);
-	printf("%d\n", sema );
 
-	key_t ShmKEY;
     int ShmID;
 	int mem_q;
 	struct Memory *ShmPTR;
@@ -57,8 +39,7 @@ int main(int argc , char *argv[]) {
     }     
 
 	mem_q = atoi(argv[1]);
-
-	ShmKEY = ftok(".", 'x');
+	key_t ShmKEY = ftok(KEY, VAL);
 
     ShmID = shmget(ShmKEY, sizeof(struct Memory), IPC_CREAT | 0666);
     if (ShmID < 0) {
@@ -68,15 +49,16 @@ int main(int argc , char *argv[]) {
     printf("Shared memory allocated.\n");
 	
 	ShmPTR = (struct Memory *) shmat(ShmID, NULL, 0);
-    if ((int) ShmPTR == -1) {
-    	printf("*** shmat error (server) ***\n");
-    	exit(1);
-    }
     printf("Shared memory attached.\n");
+
 	ShmPTR -> limit = mem_q;
-	ShmPTR -> status = 0;
+	ShmPTR -> status = 1;
 	
-	while(1){
+	for(int i = 0; i < mem_q; i++){
+		ShmPTR -> pid[i] = 0;
+	}	
+
+	/*while(1){
 		if (ShmPTR -> status == 1) {
 			sleep(3);
 			show_mem(ShmPTR, sem);
@@ -95,7 +77,8 @@ int main(int argc , char *argv[]) {
 	printf("Shared memory deattached.\n");
     shmctl(ShmID, IPC_RMID, NULL);
 	printf("Shared memory deallocated.\n");
-	int sem_close(sem_t *sem);
+	*/
+	sem_close(sem);
 	return 0;
 
 }
