@@ -1,4 +1,8 @@
 
+
+//THIS FILE DEFINES THE SHARED MEMORY SEGMENT STRUCTURE AND THE SEMAPHORE
+
+
 #include <time.h>
 #define SEM_NAME "reader_writer"
 #define FILLED 0
