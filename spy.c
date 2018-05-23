@@ -60,6 +60,28 @@ void show_mem(struct Memory* ShmPTR) {
 }
 
 
+void show_readers(struct Memory* ShmPTR) {
+	//sem_t *sem = sem_open(SEM_NAME, O_RDWR);  	
+	int i = 0;	
+	//sem_wait(sem);
+	int lim = ShmPTR -> limit_r;	
+	for(i = 0; i < lim; i++){
+		Agent reader = ShmPTR -> readers[i];	
+		if(reader.status == SLEEPING){
+			printf("PID: %d | Status: Sleeping\n", reader.pid);
+		} else if(reader.status == LOCKED){
+			printf("PID: %d | Status: Locked\n", reader.pid);
+		} else if(reader.status == OPERATING){
+			printf("PID: %d | Status: Operating\n", reader.pid);
+		}
+
+		
+		
+	}
+	//sem_post(sem);
+	//sem_close(sem);
+}
+
 int main(int argc , char *argv[]){
 
 	//THIS CODE IS REUSABLE	
@@ -88,6 +110,10 @@ int main(int argc , char *argv[]){
 	printf("-------------WRITERS STATUS--------------\n");
 	show_writers(ShmPTR);	
 	printf("-------------WRITERS STATUS--------------\n\n");
+
+    printf("-------------READERS STATUS--------------\n");
+	show_readers(ShmPTR);	
+	printf("-------------READERS STATUS--------------\n\n");
 
 
 	//THIS CODE IS REUSABLE

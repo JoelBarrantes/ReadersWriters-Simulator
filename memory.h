@@ -4,13 +4,19 @@
 
 
 #include <time.h>
-#define SEM_NAME "reader_writer"
+#define SEM_NAME "sem1"
+
+
+//Estados de la memoria
 #define FILLED 0
 #define AVAILABLE 1
 #define CLOSED -1
+
+//Estado del agente
 #define LOCKED 0
 #define SLEEPING -1
 #define OPERATING 1
+
 #define MAX_MEM_SIZE 1024
 #define MAX_WRITERS 32
 #define MAX_READERS 32
@@ -23,14 +29,18 @@ typedef struct {
 	int status;
 } Agent;
 
+
+
 struct Memory {
 
 	int limit;
+
 	int limit_w;
 	int limit_r;
 	int limit_sr;
 
 	int status;
+
 	int pid[MAX_MEM_SIZE];
 	time_t date_time[MAX_MEM_SIZE];	
 

@@ -73,8 +73,8 @@ void *run_writer(void *args){
 			sem_wait(sem);
 			agent -> status = OPERATING;
 			int index = get_empty_line(ShmPTR -> pid, ShmPTR -> limit);
-		 				
-			printf("Process with pid %d writing in line %d.\n", tid, index);		
+		    
+			printf("Writer with pid %d writing in line %d.\n", tid, index);		
 			t = time(NULL);					
 			ShmPTR -> pid[index] = tid;		
 			ShmPTR -> date_time[index] = t;
@@ -83,7 +83,7 @@ void *run_writer(void *args){
 			//CHECK IF MEMORY IS FULL
 			index = get_empty_line(ShmPTR -> pid, ShmPTR -> limit);
 			if ( index == -1) ShmPTR -> status = 0;
-			printf("Process with pid %d sleeping...\n", tid);		
+			printf("Writer with pid %d sleeping...\n", tid);		
 			sem_post(sem);
 			agent -> status = SLEEPING;
 			sleep(sleep_t);
