@@ -28,6 +28,8 @@ void display_help(){
 int main(int argc , char *argv[]) {
 	
 	sem_t *sem = sem_open(SEM_NAME, O_CREAT , 0666, 1);
+    sem_t *semf = sem_open(SEM_FILE, O_CREAT , 0666, 1);
+    
 
     int ShmID;
 	int mem_q;
@@ -53,7 +55,7 @@ int main(int argc , char *argv[]) {
 
 	ShmPTR -> limit = mem_q;
 	ShmPTR -> status = 1;
-	
+
 	for(int i = 0; i < mem_q; i++){
 		ShmPTR -> pid[i] = 0;
 	}	
@@ -79,6 +81,7 @@ int main(int argc , char *argv[]) {
 	printf("Shared memory deallocated.\n");
 	*/
 	sem_close(sem);
+    sem_close(semf);
 	return 0;
 
 }

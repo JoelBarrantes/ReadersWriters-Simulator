@@ -44,10 +44,12 @@ void *run_writer(void *args){
 
 	struct args *arguments = args;
 	
+	
 	int write_t = arguments -> op_t;
 	int sleep_t = arguments -> sleep_t;
 
-	sem_t *sem = sem_open(SEM_NAME, O_RDWR);    
+	sem_t *sem = sem_open(SEM_NAME, O_RDWR);
+    sem_t *semf = sem_open(SEM_FILE, O_RDWR);
 	time_t t;
 	
 	pid_t tid = syscall(SYS_gettid);
@@ -74,16 +76,67 @@ void *run_writer(void *args){
 			agent -> status = OPERATING;
 			int index = get_empty_line(ShmPTR -> pid, ShmPTR -> limit);
 		    
-			printf("Writer with pid %d writing in line %d.\n", tid, index);		
+			printf("Writer with pid %d writing in line %d.\n", agent -> pid, index);	
+            
+
+            //////////LOG///////////
+            sem_wait(semf);
+            FILE *file = fopen(FILE_NAME,"a");
+
+            t = time(NULL);	
+            char bufflog[20];
+		    strftime(bufflog, 20, "%Y-%m-%d %H:%M:%S", localtime(&t));
+
+
+	        fprintf(file,"%s:- Writer with pid %d writing in line %d.\n", bufflog, agent -> pid, index);	
+            fclose(file);
+            sem_post(semf);
+            //////////LOG///////////
+
 			t = time(NULL);					
-			ShmPTR -> pid[index] = tid;		
+			ShmPTR -> pid[index] = agent -> pid;		
 			ShmPTR -> date_time[index] = t;
-			sleep(write_t);			
+			sleep(write_t);		
+            	
+            char buff[20];
+		    strftime(buff, 20, "%Y-%m-%d %H:%M:%S", localtime(&t));
+
+           
+            printf("Writer with pid %d wrote: \"Line: %d | PID: %d | Date Time: ",  agent -> pid , index ,agent -> pid);	
+            printf("%s\".\n",buff);
+
+            //////////LOG///////////
+            sem_wait(semf);
+            FILE *file1 = fopen(FILE_NAME,"a");
+            
+            t = time(NULL);	
+            char bufflog2[20];
+		    strftime(bufflog2, 20, "%Y-%m-%d %H:%M:%S", localtime(&t));
+            
+            
+	        fprintf(file1,"%s:- Writer with pid %d wrote: \"Line: %d | PID: %d | Date Time: ", bufflog2 ,agent -> pid , index ,agent -> pid);	
+            fprintf(file1,"%s\".\n",buff);
+            fclose(file1);
+            sem_post(semf);
+            //////////LOG///////////
 
 			//CHECK IF MEMORY IS FULL
 			index = get_empty_line(ShmPTR -> pid, ShmPTR -> limit);
 			if ( index == -1) ShmPTR -> status = 0;
-			printf("Writer with pid %d sleeping...\n", tid);		
+			printf("Writer with pid %d sleeping...\n", tid);
+
+            sem_wait(semf);
+            FILE *file2 = fopen(FILE_NAME,"a");
+            
+            t = time(NULL);	
+            char bufflog3[20];
+		    strftime(bufflog3, 20, "%Y-%m-%d %H:%M:%S", localtime(&t));
+            
+        
+            fprintf(file2,"%s:- Writer with pid %d sleeping...\n",bufflog3, tid);
+            fclose(file2);            
+            sem_post(semf);
+			
 			sem_post(sem);
 			agent -> status = SLEEPING;
 			sleep(sleep_t);
@@ -98,6 +151,7 @@ void *run_writer(void *args){
 	}
 
 	sem_close(sem);
+    sem_close(semf);
 	return NULL;
 
 };

@@ -4,7 +4,8 @@
 
 
 #include <time.h>
-#define SEM_NAME "sem1"
+#define SEM_NAME "sem_x"
+#define SEM_FILE "sem_y"
 
 
 //Estados de la memoria
@@ -24,6 +25,8 @@
 #define KEY "."
 #define VAL 'x'
 
+#define FILE_NAME "Bitacora.txt"
+
 typedef struct {
 	int pid;
 	int status;
@@ -40,6 +43,7 @@ struct Memory {
 	int limit_sr;
 
 	int status;
+   
 
 	int pid[MAX_MEM_SIZE];
 	time_t date_time[MAX_MEM_SIZE];	
@@ -55,3 +59,8 @@ struct args{
 	int op_t;
 	int sleep_t;
 };
+
+
+
+
+

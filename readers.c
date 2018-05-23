@@ -51,8 +51,8 @@ void *run_reader(void *args){
 	int sleep_t = arguments -> sleep_t;
 
 	//printf("reader_t %d",reader_t);
-	sem_t *sem = sem_open(SEM_NAME, O_RDWR);    
-	time_t t;
+	sem_t *sem = sem_open(SEM_NAME, O_RDWR);
+    sem_t *semf = sem_open(SEM_FILE, O_RDWR);    
 	
 	pid_t tid = syscall(SYS_gettid);
 
@@ -67,7 +67,7 @@ void *run_reader(void *args){
     	
 	while(1){
 		
-        printf("Aqui 1\n");
+        //printf("Aqui 1\n");
         agent -> status = LOCKED;       
         pthread_mutex_lock(&m);
  
@@ -80,10 +80,11 @@ void *run_reader(void *args){
 
         ////////////////////////////////
         
-        printf("Aqui 2\n");
-        
+        //printf("Aqui 2\n");
+        time_t t; 
         agent -> status = OPERATING;
         int PID = 0;  
+        int local_index;
         while(PID == 0){
        
 		    int status = ShmPTR -> status;
@@ -95,7 +96,9 @@ void *run_reader(void *args){
         
             pthread_mutex_lock(&m);
             PID = ShmPTR -> pid[idx];      
-            time_t t = ShmPTR -> date_time[idx];
+            t = ShmPTR -> date_time[idx];
+            local_index = idx;
+            
             idx++;
             if (idx == ShmPTR -> limit){
                 idx = 0;
@@ -113,11 +116,25 @@ void *run_reader(void *args){
 		 
         char buff[20];
 		strftime(buff, 20, "%Y-%m-%d %H:%M:%S", localtime(&t));
-        printf("Reader with pid %d reading the line %d\n", agent -> pid, idx);
+        printf("Reader with pid %d reading the line %d\n", agent -> pid, local_index);
 		sleep(reader_t);
-		printf("%d: \"I read -> PID: %d | Date Time: ", agent -> pid , PID);
+		printf("Reader with pid %d: Read message \"Line: %d | PID: %d | Date Time: ", agent -> pid , local_index,  PID);
 		printf("%s\"\n",buff);
 
+        sem_wait(semf);
+            FILE *file = fopen(FILE_NAME,"a");
+
+            t = time(NULL);	
+            char bufflog[20];
+		    strftime(bufflog, 20, "%Y-%m-%d %H:%M:%S", localtime(&t));
+            
+    
+	        fprintf(file,"%s:- Reader with pid %d reading the line %d\n", bufflog, agent -> pid, local_index);
+            fprintf(file,"%s:- Reader with pid %d: Read message \"Line: %d | PID: %d | Date Time: ", bufflog, agent -> pid, local_index, PID );	
+            fprintf(file,"%s\".\n",buff);
+            fclose(file);
+        sem_post(semf);
+            
         ////////////////////////////////
 
 					
@@ -134,6 +151,19 @@ void *run_reader(void *args){
 
         
         printf("Reader with pid %d sleeping...\n", agent -> pid);   
+
+        sem_wait(semf);
+            FILE *file1 = fopen(FILE_NAME,"a");
+            
+            t = time(NULL);	
+            char bufflog2[20];
+		    strftime(bufflog2, 20, "%Y-%m-%d %H:%M:%S", localtime(&t));
+            
+            
+	        fprintf(file1,"%s:- Reader with pid %d sleeping...\n", bufflog2, agent -> pid);	
+            fclose(file1);
+        sem_post(semf);
+
 		agent -> status = SLEEPING;
 		sleep(sleep_t);
         
