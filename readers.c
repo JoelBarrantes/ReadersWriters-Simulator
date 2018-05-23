@@ -52,7 +52,6 @@ void *run_reader(void *args){
 
 	//printf("reader_t %d",reader_t);
 	sem_t *sem = sem_open(SEM_NAME, O_RDWR);    
-	time_t t;
 	
 	pid_t tid = syscall(SYS_gettid);
 
@@ -81,9 +80,10 @@ void *run_reader(void *args){
         ////////////////////////////////
         
         printf("Aqui 2\n");
-        
+        time_t t; 
         agent -> status = OPERATING;
         int PID = 0;  
+        int local_index;
         while(PID == 0){
        
 		    int status = ShmPTR -> status;
@@ -95,7 +95,9 @@ void *run_reader(void *args){
         
             pthread_mutex_lock(&m);
             PID = ShmPTR -> pid[idx];      
-            time_t t = ShmPTR -> date_time[idx];
+            t = ShmPTR -> date_time[idx];
+            local_index = idx;
+            
             idx++;
             if (idx == ShmPTR -> limit){
                 idx = 0;
@@ -113,7 +115,7 @@ void *run_reader(void *args){
 		 
         char buff[20];
 		strftime(buff, 20, "%Y-%m-%d %H:%M:%S", localtime(&t));
-        printf("Reader with pid %d reading the line %d\n", agent -> pid, idx);
+        printf("Reader with pid %d reading the line %d\n", agent -> pid, local_index);
 		sleep(reader_t);
 		printf("%d: \"I read -> PID: %d | Date Time: ", agent -> pid , PID);
 		printf("%s\"\n",buff);
