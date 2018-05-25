@@ -54,18 +54,23 @@ void *run_sreader(void *args){
     srand(time(NULL));
 	
 	while(1){
-		agent -> status = LOCKED;
-
-		sem_wait(sema);
-		int status = ShmPTR -> status;
-
-		sem_post(sema);
-            
-		if (status == CLOSED){
+        
+     
+		if (ShmPTR -> status == CLOSED){
 			sem_post(sem);
 			break;	
 		}
+
+
+        agent -> status = LOCKED;
+        if (ShmPTR -> consecutive_r > 2 ){
+            continue;            
+        }
+		
+		
         pthread_mutex_lock(&m);
+    
+
         num_sreaders++;
         if(num_sreaders == 1){
             sem_wait(semr);
@@ -78,10 +83,7 @@ void *run_sreader(void *args){
 	    sem_wait(sem);
 	    agent -> status = OPERATING;
         ShmPTR -> consecutive_r++;
-        if (ShmPTR -> consecutive_r > 2 ){
-            sem_post(sem);
-            continue;            
-        }
+        
         int index = rand();
         index = index % (ShmPTR -> limit);
         
@@ -106,10 +108,7 @@ void *run_sreader(void *args){
 
     
         
-        if (status == CLOSED){
-	        sem_post(sem);
-	        break;	
-        }
+        
         int PID = ShmPTR -> pid[index];      
             
 
@@ -193,14 +192,12 @@ void *run_sreader(void *args){
         
         pthread_mutex_unlock(&m);
 
-
-        sched_yield();
 	    agent -> status = SLEEPING;
 	    sleep(sleep_t);
 	
 	
 
-	    if (status == CLOSED){
+	    if (ShmPTR -> status == CLOSED){
 		    sem_post(sem);
 		    break;	
 	    }
@@ -209,6 +206,7 @@ void *run_sreader(void *args){
 
     sem_close(sem);
     sem_close(semr);
+sem_close(sema);
     sem_close(semf);
     return NULL;
 

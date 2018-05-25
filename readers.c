@@ -53,9 +53,9 @@ void *run_reader(void *args){
 
     	
 	while(1){
-		
+		agent -> status = LOCKED;
         //printf("Aqui 1\n");
-        agent -> status = LOCKED;
+        
 
         
         sem_wait(semr);       
@@ -87,6 +87,7 @@ void *run_reader(void *args){
 		    }            
         
             pthread_mutex_lock(&m);
+            
             PID = ShmPTR -> pid[idx];      
             t = ShmPTR -> date_time[idx];
             local_index = idx;

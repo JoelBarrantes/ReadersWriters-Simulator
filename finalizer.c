@@ -61,7 +61,9 @@ int main(int argc , char *argv[]){
 	shmctl(ShmID, IPC_RMID, NULL);
 	printf("Finalizer: shared memory deallocated.\n");
 	sem_unlink(SEM_NAME);
-    sem_unlink(SEM_FILE);	
+    sem_unlink(SEM_FILE);
+    sem_unlink(SEM_ACCESS);	
+    sem_unlink(SEM_READ);
 
 	return 0;
 

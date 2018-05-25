@@ -69,15 +69,13 @@ void *run_writer(void *args){
 
 	
 	while(1){
-		agent -> status = LOCKED;
 		
-		sem_wait(sema);
-		int status = ShmPTR -> status;
-		sem_post(sema);
-				
-		if (status == AVAILABLE){
+		
+	
+		if (ShmPTR -> status == AVAILABLE){
 			
             pthread_mutex_lock(&m);
+            agent -> status = LOCKED;
             num_writers++;
             if(num_writers == 1){
                 sem_wait(semr);
@@ -92,10 +90,16 @@ void *run_writer(void *args){
             int PID = -1;
             int local_index;
             while(PID != 0){
-           
-		        int status = ShmPTR -> status;
-		               
-                if (status == CLOSED){
+                 
+                //CHECK IF MEMORY IS FULL
+			    full = get_empty_line(ShmPTR -> pid, ShmPTR -> limit);
+			    if ( full == -1) {
+                    ShmPTR -> status = 0;
+                    sem_post(sem);
+                }
+                    
+		        
+                if (ShmPTR -> status == CLOSED){
 			        sem_post(sem);
 			        break;	
 		        }            
@@ -195,7 +199,7 @@ void *run_writer(void *args){
 		
 		}
 
-		if (status == CLOSED){
+		if (ShmPTR -> status == CLOSED){
 			sem_post(sem);
 			break;	
 		}
@@ -203,6 +207,7 @@ void *run_writer(void *args){
 	}
 
 	sem_close(sem);
+    sem_close(sema);
     sem_close(semr);
     sem_close(semf);
 	return NULL;
