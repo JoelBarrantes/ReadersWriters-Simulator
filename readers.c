@@ -169,6 +169,8 @@ void *run_reader(void *args){
 	}
 
 	sem_close(sem);
+    sem_close(semr);    
+    sem_close(semf);
 	return NULL;
 
 };
