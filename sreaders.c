@@ -37,7 +37,7 @@ void *run_sreader(void *args){
 	int sleep_t = arguments -> sleep_t;
 
 	sem_t *sem = sem_open(SEM_NAME, O_RDWR);
-    sem_t *semr = sem_open(SEM_READ, O_RDWR);
+    sem_t *semr = sem_open(SEM_READR, O_RDWR);
     sem_t *semf = sem_open(SEM_FILE, O_RDWR);
 	sem_t *sema = sem_open(SEM_ACCESS, O_RDWR);	
 	time_t t;

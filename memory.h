@@ -4,10 +4,11 @@
 
 
 #include <time.h>
-#define SEM_NAME "sem_x"
-#define SEM_FILE "sem_y"
-#define SEM_READ "sem_r"
-#define SEM_ACCESS "sem_a"
+#define SEM_NAME "se_q"
+#define SEM_FILE "se_w"
+#define SEM_READW "se_e"
+#define SEM_READR "se_t"
+#define SEM_ACCESS "se_r"
 
 //Estados de la memoria
 #define FILLED 0
@@ -18,6 +19,7 @@
 #define LOCKED 0
 #define SLEEPING -1
 #define OPERATING 1
+#define IDLE 2
 
 #define MAX_MEM_SIZE 1024
 #define MAX_WRITERS 32

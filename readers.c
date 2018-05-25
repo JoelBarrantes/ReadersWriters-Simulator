@@ -39,8 +39,9 @@ void *run_reader(void *args){
 	//printf("reader_t %d",reader_t);
 	sem_t *sem = sem_open(SEM_NAME, O_RDWR);
     sem_t *semf = sem_open(SEM_FILE, O_RDWR);
-    sem_t *semr = sem_open(SEM_READ, O_RDWR);    
-	
+    sem_t *semr1 = sem_open(SEM_READW, O_RDWR);    
+	sem_t *semr2 = sem_open(SEM_READR, O_RDWR);  
+  
 	pid_t tid = syscall(SYS_gettid);
 
 	pthread_mutex_lock(&m);
@@ -58,7 +59,8 @@ void *run_reader(void *args){
         
 
         
-        sem_wait(semr);       
+        sem_wait(semr1);   
+        sem_wait(semr2);     
         pthread_mutex_lock(&m);
  
         num_readers++;
@@ -66,7 +68,9 @@ void *run_reader(void *args){
             sem_wait(sem);
         }
 	    pthread_mutex_unlock(&m);
-        sem_post(semr);				
+        sem_post(semr2);
+        sem_post(semr1);
+                				
         
 
         ////////////////////////////////
@@ -170,7 +174,8 @@ void *run_reader(void *args){
 	}
 
 	sem_close(sem);
-    sem_close(semr);    
+    sem_close(semr1);    
+    sem_close(semr2);  
     sem_close(semf);
 	return NULL;
 

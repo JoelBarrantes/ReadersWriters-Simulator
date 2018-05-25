@@ -31,7 +31,10 @@ void show_writers(struct Memory* ShmPTR) {
 			printf("PID: %d | Status: Locked\n", writer.pid);
 		} else if(writer.status == OPERATING){
 			printf("PID: %d | Status: Operating\n", writer.pid);
+		}else if(writer.status == IDLE){
+			printf("PID: %d | Status: IDLE\n", writer.pid);
 		}
+        
 
 		
 		

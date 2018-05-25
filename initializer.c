@@ -28,8 +28,8 @@ void display_help(){
 int main(int argc , char *argv[]) {
 	
 	sem_t *sem = sem_open(SEM_NAME, O_CREAT , 0666, 1);
-    sem_t *semr = sem_open(SEM_READ, O_CREAT , 0666, 1);
-	;
+    sem_t *semr1 = sem_open(SEM_READW, O_CREAT , 0666, 1);
+	 sem_t *semr2 = sem_open(SEM_READR, O_CREAT , 0666, 1);
     sem_t *sema = sem_open(SEM_ACCESS, O_CREAT , 0666, 1);
     sem_t *semf = sem_open(SEM_FILE, O_CREAT , 0666, 1);
     
@@ -91,7 +91,8 @@ int main(int argc , char *argv[]) {
 	sem_close(sem);
 	sem_close(sema);
     sem_close(semf);
-    sem_close(semr);
+    sem_close(semr1);
+    sem_close(semr2);
 	return 0;
 
 }

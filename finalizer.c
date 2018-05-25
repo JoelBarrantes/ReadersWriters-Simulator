@@ -63,8 +63,10 @@ int main(int argc , char *argv[]){
 	sem_unlink(SEM_NAME);
     sem_unlink(SEM_FILE);
     sem_unlink(SEM_ACCESS);	
-    sem_unlink(SEM_READ);
+    sem_unlink(SEM_READW);
+    sem_unlink(SEM_READR);
+    
 
-	return 0;
+	return 0;   
 
 }
