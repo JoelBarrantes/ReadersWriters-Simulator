@@ -57,149 +57,157 @@ void *run_sreader(void *args){
 		int status = ShmPTR -> status;
 
 
-
-            pthread_mutex_lock(&m);
-            num_sreaders++;
-            if(num_sreaders == 1){
-                sem_wait(semr);
-            }            
-    
-            pthread_mutex_unlock(&m);            
-
-
-
-			sem_wait(sem);
-			agent -> status = OPERATING;
-            ShmPTR -> consecutive_r++;
-            if (ShmPTR -> consecutive_r > 2 ){
-                sem_post(sem);
-                continue;            
-            }
-            int index = rand();
-            index = index % (ShmPTR -> limit);
-		    
             
-
-			printf("Selfish reader with pid %d reading line %d.\n", agent -> pid, index);	
-            
-
-            //////////LOG///////////
-            sem_wait(semf);
-            FILE *file = fopen(FILE_NAME,"a");
-
-            t = time(NULL);	
-            char bufflog[20];
-		    strftime(bufflog, 20, "%Y-%m-%d %H:%M:%S", localtime(&t));
-
-
-	        fprintf(file,"%s:- Writer with pid %d writing in line %d.\n", bufflog, agent -> pid, index);	
-            fclose(file);
-            sem_post(semf);
-            //////////LOG///////////
-
-
-
-            int PID = ShmPTR -> pid[index];      
-            
-
-            if(PID != 0){
-
-                //READERS EGOISTAS --- CONTADORES
-
-                t = ShmPTR -> date_time[index];
-     	        char buff[20];
-		        strftime(buff, 20, "%Y-%m-%d %H:%M:%S", localtime(&t));
-           
-                printf("Selfish reader with pid %d: Read message \"Line: %d | PID: %d | Date Time: ", agent -> pid , index,  agent -> pid);
-		        printf("%s\"\n",buff);
-                
-                //////////LOG///////////
-                sem_wait(semf);
-                FILE *file1 = fopen(FILE_NAME,"a");
-                
-                t = time(NULL);	
-                char bufflog1[20];
-		        strftime(bufflog1, 20, "%Y-%m-%d %H:%M:%S", localtime(&t));
-                
-                
-	            fprintf(file1,"%s:- Selfish reader with pid %d: Read message \"Line: %d | PID: %d | Date Time: ", bufflog1 ,agent -> pid , index ,agent -> pid);	
-                fprintf(file1,"%s\".\n",buff);
-                fclose(file1);
-                sem_post(semf);
-                //////////LOG///////////
-
-
-                sleep(sreader_t);
-
-
-                printf("Selfish reader with pid %d: Deleting message \"Line: %d | PID: %d | Date Time: ", agent -> pid , index,  PID);
-		        printf("%s\"\n",buff);
-                ShmPTR -> pid[index] = 0;	
-
-                //////////LOG///////////
-                sem_wait(semf);
-                FILE *file3 = fopen(FILE_NAME,"a");
-                
-                t = time(NULL);	
-                char bufflog2[20];
-		        strftime(bufflog2, 20, "%Y-%m-%d %H:%M:%S", localtime(&t));
-                
-                
-	            fprintf(file3,"%s:- Selfish reader with pid %d: Deleting message \"Line: %d | PID: %d | Date Time: ", bufflog2 ,agent -> pid , index ,agent -> pid);	
-                fprintf(file3,"%s\".\n",buff);
-                fclose(file3);
-                sem_post(semf);
-                //////////LOG///////////
-    
-            }
-
-            
-
-			printf("Selfish reader with pid %d sleeping...\n", tid);
-
-            //////////LOG///////////            
-            sem_wait(semf);
-            FILE *file2 = fopen(FILE_NAME,"a");
-            
-            t = time(NULL);	
-            char bufflog3[20];
-		    strftime(bufflog3, 20, "%Y-%m-%d %H:%M:%S", localtime(&t));
-            
-        
-            fprintf(file2,"%s:- Selfish reader with pid %d sleeping...\n",bufflog3, tid);
-            fclose(file2);            
-            sem_post(semf);
-            //////////LOG///////////			
-
-
-			sem_post(sem);
-            
-            pthread_mutex_lock(&m);
-            num_sreaders--;
-            if (num_sreaders == 0){
-                sem_post(semr);
-            }
-            
-            pthread_mutex_unlock(&m);
-
-
-
-			agent -> status = SLEEPING;
-			sleep(sleep_t);
-		
-		
-
 		if (status == CLOSED){
 			sem_post(sem);
 			break;	
 		}
-		
-	}
+        pthread_mutex_lock(&m);
+        num_sreaders++;
+        if(num_sreaders == 1){
+            sem_wait(semr);
+        }            
 
-	sem_close(sem);
+        pthread_mutex_unlock(&m);            
+
+
+
+	    sem_wait(sem);
+	    agent -> status = OPERATING;
+        ShmPTR -> consecutive_r++;
+        if (ShmPTR -> consecutive_r > 2 ){
+            sem_post(sem);
+            continue;            
+        }
+        int index = rand();
+        index = index % (ShmPTR -> limit);
+        
+        
+
+	    printf("Selfish reader with pid %d reading line %d.\n", agent -> pid, index);	
+        
+
+        //////////LOG///////////
+        sem_wait(semf);
+        FILE *file = fopen(FILE_NAME,"a");
+
+        t = time(NULL);	
+        char bufflog[20];
+        strftime(bufflog, 20, "%Y-%m-%d %H:%M:%S", localtime(&t));
+
+
+        fprintf(file,"%s:- Writer with pid %d writing in line %d.\n", bufflog, agent -> pid, index);	
+        fclose(file);
+        sem_post(semf);
+        //////////LOG///////////
+
+    
+        
+        if (status == CLOSED){
+	        sem_post(sem);
+	        break;	
+        }
+        int PID = ShmPTR -> pid[index];      
+            
+
+        if(PID != 0){
+
+            //READERS EGOISTAS --- CONTADORES
+
+            t = ShmPTR -> date_time[index];
+ 	        char buff[20];
+            strftime(buff, 20, "%Y-%m-%d %H:%M:%S", localtime(&t));
+       
+            printf("Selfish reader with pid %d: Read message \"Line: %d | PID: %d | Date Time: ", agent -> pid , index,  agent -> pid);
+            printf("%s\"\n",buff);
+            
+            //////////LOG///////////
+            sem_wait(semf);
+            FILE *file1 = fopen(FILE_NAME,"a");
+            
+            t = time(NULL);	
+            char bufflog1[20];
+            strftime(bufflog1, 20, "%Y-%m-%d %H:%M:%S", localtime(&t));
+            
+            
+            fprintf(file1,"%s:- Selfish reader with pid %d: Read message \"Line: %d | PID: %d | Date Time: ", bufflog1 ,agent -> pid , index ,agent -> pid);	
+            fprintf(file1,"%s\".\n",buff);
+            fclose(file1);
+            sem_post(semf);
+            //////////LOG///////////
+
+
+            sleep(sreader_t);
+
+
+            printf("Selfish reader with pid %d: Deleting message \"Line: %d | PID: %d | Date Time: ", agent -> pid , index,  PID);
+            printf("%s\"\n",buff);
+            ShmPTR -> pid[index] = 0;	
+
+            //////////LOG///////////
+            sem_wait(semf);
+            FILE *file3 = fopen(FILE_NAME,"a");
+            
+            t = time(NULL);	
+            char bufflog2[20];
+            strftime(bufflog2, 20, "%Y-%m-%d %H:%M:%S", localtime(&t));
+            
+            
+            fprintf(file3,"%s:- Selfish reader with pid %d: Deleting message \"Line: %d | PID: %d | Date Time: ", bufflog2 ,agent -> pid , index ,agent -> pid);	
+            fprintf(file3,"%s\".\n",buff);
+            fclose(file3);
+            sem_post(semf);
+            //////////LOG///////////
+
+        }
+
+            
+
+	    printf("Selfish reader with pid %d sleeping...\n", tid);
+
+        //////////LOG///////////            
+        sem_wait(semf);
+        FILE *file2 = fopen(FILE_NAME,"a");
+        
+        t = time(NULL);	
+        char bufflog3[20];
+        strftime(bufflog3, 20, "%Y-%m-%d %H:%M:%S", localtime(&t));
+        
+    
+        fprintf(file2,"%s:- Selfish reader with pid %d sleeping...\n",bufflog3, tid);
+        fclose(file2);            
+        sem_post(semf);
+        //////////LOG///////////			
+
+
+	    sem_post(sem);
+        
+        pthread_mutex_lock(&m);
+        num_sreaders--;
+        if (num_sreaders == 0){
+            sem_post(semr);
+        }
+        
+        pthread_mutex_unlock(&m);
+
+
+        sched_yield();
+	    agent -> status = SLEEPING;
+	    sleep(sleep_t);
+	
+	
+
+	    if (status == CLOSED){
+		    sem_post(sem);
+		    break;	
+	    }
+	
+    }
+
+    sem_close(sem);
     sem_close(semr);
     sem_close(semf);
-	return NULL;
+    return NULL;
 
 };
 

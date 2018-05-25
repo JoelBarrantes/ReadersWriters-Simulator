@@ -186,7 +186,8 @@ void *run_writer(void *args){
             }
             
             pthread_mutex_unlock(&m);
-
+            
+            sched_yield();
 			agent -> status = SLEEPING;
 			sleep(sleep_t);
 		
