@@ -54,6 +54,7 @@ void *run_writer(void *args){
 	sem_t *sem = sem_open(SEM_NAME, O_RDWR);
     sem_t *semr = sem_open(SEM_READ, O_RDWR);
     sem_t *semf = sem_open(SEM_FILE, O_RDWR);
+	sem_t *sema = sem_open(SEM_ACCESS, O_RDWR);
 	time_t t;
 	
 	pid_t tid = syscall(SYS_gettid);
@@ -70,8 +71,9 @@ void *run_writer(void *args){
 	while(1){
 		agent -> status = LOCKED;
 		
+		sem_wait(sema);
 		int status = ShmPTR -> status;
-		   
+		sem_post(sema);
 				
 		if (status == AVAILABLE){
 			

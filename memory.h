@@ -7,7 +7,7 @@
 #define SEM_NAME "sem_x"
 #define SEM_FILE "sem_y"
 #define SEM_READ "sem_r"
-
+#define SEM_ACCESS "sem_a"
 
 //Estados de la memoria
 #define FILLED 0

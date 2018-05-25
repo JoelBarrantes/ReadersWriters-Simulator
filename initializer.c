@@ -29,6 +29,8 @@ int main(int argc , char *argv[]) {
 	
 	sem_t *sem = sem_open(SEM_NAME, O_CREAT , 0666, 1);
     sem_t *semr = sem_open(SEM_READ, O_CREAT , 0666, 1);
+	;
+    sem_t *sema = sem_open(SEM_ACCESS, O_CREAT , 0666, 1);
     sem_t *semf = sem_open(SEM_FILE, O_CREAT , 0666, 1);
     
 
@@ -87,6 +89,7 @@ int main(int argc , char *argv[]) {
     fclose(file1);
 
 	sem_close(sem);
+	sem_close(sema);
     sem_close(semf);
     sem_close(semr);
 	return 0;
