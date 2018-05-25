@@ -60,7 +60,8 @@ int main(int argc , char *argv[]){
 	shmdt((void *) ShmPTR);	
 	shmctl(ShmID, IPC_RMID, NULL);
 	printf("Finalizer: shared memory deallocated.\n");
-	sem_unlink(SEM_NAME);	
+	sem_unlink(SEM_NAME);
+    sem_unlink(SEM_FILE);	
 
 	return 0;
 

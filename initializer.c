@@ -28,6 +28,7 @@ void display_help(){
 int main(int argc , char *argv[]) {
 	
 	sem_t *sem = sem_open(SEM_NAME, O_CREAT , 0666, 1);
+    sem_t *semr = sem_open(SEM_READ, O_CREAT , 0666, 1);
     sem_t *semf = sem_open(SEM_FILE, O_CREAT , 0666, 1);
     
 
@@ -55,6 +56,7 @@ int main(int argc , char *argv[]) {
 
 	ShmPTR -> limit = mem_q;
 	ShmPTR -> status = 1;
+    ShmPTR -> consecutive_r = 0;
 
 	for(int i = 0; i < mem_q; i++){
 		ShmPTR -> pid[i] = 0;
@@ -80,8 +82,13 @@ int main(int argc , char *argv[]) {
     shmctl(ShmID, IPC_RMID, NULL);
 	printf("Shared memory deallocated.\n");
 	*/
+    FILE *file1 = fopen(FILE_NAME,"a");
+    fprintf(file1,"------------------------------------------------------------------------------------------\n");
+    fclose(file1);
+
 	sem_close(sem);
     sem_close(semf);
+    sem_close(semr);
 	return 0;
 
 }

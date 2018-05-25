@@ -6,6 +6,7 @@
 #include <time.h>
 #define SEM_NAME "sem_x"
 #define SEM_FILE "sem_y"
+#define SEM_READ "sem_r"
 
 
 //Estados de la memoria
@@ -44,13 +45,14 @@ struct Memory {
 
 	int status;
    
+    int consecutive_r;    
 
 	int pid[MAX_MEM_SIZE];
 	time_t date_time[MAX_MEM_SIZE];	
 
 	Agent writers[MAX_WRITERS];
 	Agent readers[MAX_READERS];
-	Agent s_reader[MAX_S_READERS];
+	Agent sreaders[MAX_S_READERS];
 
 };
 

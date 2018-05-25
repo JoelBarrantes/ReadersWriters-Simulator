@@ -24,7 +24,10 @@
 struct Memory  *ShmPTR;
 
 pthread_mutex_t m;
+int num_writers = 0;
+
 int worker_ID = 0;
+int idx = 0;
 
 int get_empty_line(int pid[MAX_MEM_SIZE], int limit){
 
@@ -49,6 +52,7 @@ void *run_writer(void *args){
 	int sleep_t = arguments -> sleep_t;
 
 	sem_t *sem = sem_open(SEM_NAME, O_RDWR);
+    sem_t *semr = sem_open(SEM_READ, O_RDWR);
     sem_t *semf = sem_open(SEM_FILE, O_RDWR);
 	time_t t;
 	
@@ -71,10 +75,45 @@ void *run_writer(void *args){
 				
 		if (status == AVAILABLE){
 			
+            pthread_mutex_lock(&m);
+            num_writers++;
+            if(num_writers == 1){
+                sem_wait(semr);
+            }            
+    
+            pthread_mutex_unlock(&m);            
 
 			sem_wait(sem);
 			agent -> status = OPERATING;
-			int index = get_empty_line(ShmPTR -> pid, ShmPTR -> limit);
+			ShmPTR -> consecutive_r = 0;
+               
+            int PID = -1;
+            int local_index;
+            while(PID != 0){
+           
+		        int status = ShmPTR -> status;
+		               
+                if (status == CLOSED){
+			        sem_post(sem);
+			        break;	
+		        }            
+            
+                pthread_mutex_lock(&m);
+                PID = ShmPTR -> pid[idx];      
+                t = ShmPTR -> date_time[idx];
+                local_index = idx;
+                
+                idx++;
+                if (idx == ShmPTR -> limit){
+                    idx = 0;
+                }
+                 
+                pthread_mutex_unlock(&m) ;  
+             
+            }   
+        
+
+            int index = local_index;
 		    
 			printf("Writer with pid %d writing in line %d.\n", agent -> pid, index);	
             
@@ -138,6 +177,16 @@ void *run_writer(void *args){
             sem_post(semf);
 			
 			sem_post(sem);
+
+
+            pthread_mutex_lock(&m);
+            num_writers--;
+            if (num_writers == 0){
+                sem_post(semr);
+            }
+            
+            pthread_mutex_unlock(&m);
+
 			agent -> status = SLEEPING;
 			sleep(sleep_t);
 		

@@ -29,20 +29,6 @@ int num_readers = 0;
 int worker_ID = 0;
 int idx = 0;
 
-int get_empty_line(int pid[MAX_MEM_SIZE], int limit){
-
-	for(int i = 0; i < limit; i++){
-			
-		int val = pid[i];
-		if (val == 0){
-			return i;
-		}
-
-	}
-	return -1;
-}
-
-
 void *run_reader(void *args){
 
 	struct args *arguments = args;
@@ -52,7 +38,8 @@ void *run_reader(void *args){
 
 	//printf("reader_t %d",reader_t);
 	sem_t *sem = sem_open(SEM_NAME, O_RDWR);
-    sem_t *semf = sem_open(SEM_FILE, O_RDWR);    
+    sem_t *semf = sem_open(SEM_FILE, O_RDWR);
+    sem_t *semr = sem_open(SEM_READ, O_RDWR);    
 	
 	pid_t tid = syscall(SYS_gettid);
 
@@ -68,14 +55,18 @@ void *run_reader(void *args){
 	while(1){
 		
         //printf("Aqui 1\n");
-        agent -> status = LOCKED;       
+        agent -> status = LOCKED;
+
+        
+        sem_wait(semr);       
         pthread_mutex_lock(&m);
  
         num_readers++;
         if( num_readers == 1){
             sem_wait(sem);
         }
-	    pthread_mutex_unlock(&m);				
+	    pthread_mutex_unlock(&m);
+        sem_post(semr);				
         
 
         ////////////////////////////////
@@ -83,6 +74,7 @@ void *run_reader(void *args){
         //printf("Aqui 2\n");
         time_t t; 
         agent -> status = OPERATING;
+        ShmPTR -> consecutive_r = 0;
         int PID = 0;  
         int local_index;
         while(PID == 0){
@@ -223,9 +215,12 @@ int main(int argc , char *argv[]) {
 	ShmPTR -> limit_r = a_q;
 
 	int t;
+    srand(time(NULL));
 	
 	for(t = 0; t < a_q; t++){
 		int rc = pthread_create(&readers[t], NULL, run_reader, arguments);
+        int secs = rand()%4;
+        sleep(secs);
 	}
 	
 	for (t = 0; t < a_q; t++) {
