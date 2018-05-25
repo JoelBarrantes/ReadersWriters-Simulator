@@ -69,9 +69,9 @@ void *run_writer(void *args){
 	
 	while(1){
 		agent -> status = LOCKED;
-		sem_wait(sem);
+		
 		int status = ShmPTR -> status;
-		sem_post(sem);
+		   
 				
 		if (status == AVAILABLE){
 			
